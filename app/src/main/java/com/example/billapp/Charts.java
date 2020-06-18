@@ -2,8 +2,10 @@ package com.example.billapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Description;
@@ -23,19 +25,61 @@ public class Charts extends AppCompatActivity {
     ArrayList<BarEntry> barEntryArrayList;
     ArrayList<String> labelsName;
     ArrayList<CategorySum> categorySumArrayList= new ArrayList<>();
+    public static SQLiteHelper sqLiteHelper;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_charts2);
 
     barChart= findViewById(R.id.barChart);
+    int SumJedzenie=0;
+        int SumZdrowie=0;
+        int SumElektronika=0;
+        int SumModa=0;
+        int SumSport=0;
+        int SumKultura=0;
 
+        sqLiteHelper=new SQLiteHelper(this,"BillDB.sqlite",null,1);
+        Cursor cursor=sqLiteHelper.getData("SELECT * FROM BILLS");
+        cursor.moveToFirst();
+        do{
+            String category = cursor.getString(3);
+            String price = cursor.getString(2);
+            int value=Integer.parseInt(price);
+            switch(category){
+                case "Jedzenie":
+                    SumJedzenie=SumJedzenie+value;
+                    break;
+                case "Zdrowie":
+                    SumZdrowie=SumZdrowie+value;
+                    break;
+                case "Elektronika":
+                    SumElektronika=SumElektronika+value;
+                    break;
+                case "Moda":
+                    SumModa=SumModa+value;
+                    break;
+                case "Sport":
+                    SumSport=SumSport+value;
+                    break;
+                case "Kultura":
+                    SumKultura=SumKultura+value;
+                    break;
+                default:
+                    Toast.makeText(Charts.this, "OJOJ "+category,Toast.LENGTH_LONG).show();
+            }
+
+
+
+
+
+        }while(cursor.moveToNext());
 
  // barEntryArrayList.clear();
  // labelsName.clear();
   barEntryArrayList = new ArrayList<>();
   labelsName=new ArrayList<>();
-    fillCategorysum();
+    fillCategorysum(SumJedzenie, SumZdrowie,SumElektronika,SumModa,SumSport,SumKultura);
     for(int i=0;i<categorySumArrayList.size();i++){
         String category=categorySumArrayList.get(i).getCategory();
         int sum=categorySumArrayList.get(i).getPrice();
@@ -78,14 +122,14 @@ public class Charts extends AppCompatActivity {
         bardataset.setColors(ColorTemplate.COLORFUL_COLORS);
         barChart.setData(data);
     */}
-    private void fillCategorysum(){
+    private void fillCategorysum(int jedzenie, int zdrowie, int elektornika, int moda, int sport, int kultura){
         categorySumArrayList.clear();
-        categorySumArrayList.add(new CategorySum("Jedzenie",45));
-        categorySumArrayList.add(new CategorySum("Zdrowie",78));
-        categorySumArrayList.add(new CategorySum("Elektronika",22));
-        categorySumArrayList.add(new CategorySum("Moda",85));
-        categorySumArrayList.add(new CategorySum("Sport",65));
-        categorySumArrayList.add(new CategorySum("Kultura",33));
+        categorySumArrayList.add(new CategorySum("Jedzenie",jedzenie));
+        categorySumArrayList.add(new CategorySum("Zdrowie",zdrowie));
+        categorySumArrayList.add(new CategorySum("Elektronika",elektornika));
+        categorySumArrayList.add(new CategorySum("Moda",moda));
+        categorySumArrayList.add(new CategorySum("Sport",sport));
+        categorySumArrayList.add(new CategorySum("Kultura",kultura));
     }
 
 
